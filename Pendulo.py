@@ -1,12 +1,12 @@
 import pygame
-from Pendulo.FazedorDePendulo import Pendulo
+from PenduloStuff.FazedorDePendulo import Pendulo
 
 pygame.init()                                                           # inicialização
 
 width = 31*32                                                    # largura da tela
 height = 16*32                                                   # altura da tela
 
-refresh = 100
+refresh = 80
 clock = pygame.time.Clock() 
 update = pygame.USEREVENT + 1
 pygame.time.set_timer(update, refresh)
@@ -23,6 +23,6 @@ while running:                      # looping
             pendulum.update()
             pendulum.putOnScreen()
         if e.type == pygame.MOUSEBUTTONDOWN:
-            pass
+            pendulum.refresh()
         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
             running = False
