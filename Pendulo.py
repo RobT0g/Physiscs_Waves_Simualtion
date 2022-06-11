@@ -16,8 +16,8 @@ pygame.display.set_caption('Hidrodinamics')
 pendulum = Pendulo(display, (width, height))
 pendulum.putOnScreen()
 
-running = True                      # Variável de looping
-while running:                      # looping
+running = True
+while running:
     for e in pygame.event.get():
         if e.type == update:
             pendulum.update()

@@ -13,12 +13,15 @@ class Ui:
             'angle': [((self.size[0]/2)-(self.length*self.centimeter), self.size[1]-32), ((self.size[0]/2)+(self.length*self.centimeter), self.size[1]-32)],
             'reset': [(self.size[0]-80, 60), (self.size[0]-80+54, 60+28)],
             'length': [(32, self.apoioHeight+20*self.centimeter), (32, self.apoioHeight+50*self.centimeter)],
+            'mmass': [(35, 50), (55, 70)],
+            'pmass': [(71, 50), (91, 70)]
         }
-        self.angle = 0.0
         self.ballAt = [self.size[0]/2, self.length*self.centimeter+self.apoioHeight]
+        self.angle = 0.0
         self.mass = 5
         self.on = False
         self.opt = False
+        self.vel = [0, 0]
     
     def drawUi(self):
         self.drawButtons()
@@ -36,6 +39,14 @@ class Ui:
             self.display.blit(self.font.render(f'''{self.length:.1f}cm''', False, (255, 255, 255)), (self.buttons['length'][0][0]+8, self.apoioHeight+self.length*self.centimeter-6))
             txt = self.font.render(f'''{self.angle:.1f}°''', False, (255, 255, 255))
             self.display.blit(txt, (5+(self.size[0]/2)-txt.get_size()[0]/2, 16))
+            txt = self.font.render(f'Massa:{self.mass:.2f}g', False, (0, 0, 0))
+            pygame.draw.rect(self.display, (255, 255, 255), pygame.Rect(20, 20, (p:=txt.get_size())[0]+4, 3*p[1]+4))
+            pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(20, 20, (p:=txt.get_size())[0]+4, 3*p[1]+4), 2)
+            pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(*self.buttons['pmass'][0], 20, 20))
+            pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(*self.buttons['mmass'][0], 20, 20))
+            self.display.blit(txt, (22, 22))
+            self.display.blit(self.font.render('+', False, (255, 255, 255)), (self.buttons['pmass'][0][0]+5, self.buttons['pmass'][0][1]))
+            self.display.blit(self.font.render('-', False, (255, 255, 255)), (self.buttons['mmass'][0][0]+7, self.buttons['mmass'][0][1]-2))
         
     def drawButtons(self):
         txt = self.font.render(f'''{'Parar' if self.on else 'Iniciar'}''', False, (0, 0, 0))
@@ -55,17 +66,29 @@ class Ui:
     def getSizeOf(self, opt):
         return (self.buttons[opt][1][0]-self.buttons[opt][0][0], self.buttons[opt][1][1]-self.buttons[opt][0][1])
 
+    def start(self):
+        self.wholeEnergy = (self.size[1]-self.ballAt[1])*self.mass*9.8/100
+        self.baseEnergy = (self.size[1]-self.apoioHeight-(self.length*self.centimeter))*self.mass*9.8/100
+        self.period = (2*math.pi)*math.sqrt((self.length/100)/9.8)
+        self.maxXPos = self.ballAt[0]
+        self.strAngle = 0
+        self.step = 360/(self.period*80)
+
     def update(self):
         if self.on:
             if self.clickedOn() == 'init':
                 self.on = False
+                self.calc()
             pass
         else:
             opt = self.opt
             if not self.opt:
                 opt = self.clickedOn()
+            print(opt)
             if opt == 'init':
                 self.on = not self.on
+                if self.on:
+                    self.start()
                 return
             elif opt == 'angle':
                 self.opt = 'angle'
@@ -90,10 +113,17 @@ class Ui:
                 self.ballAt = [self.size[0]/2, self.length*self.centimeter+self.apoioHeight]
                 self.updateButtons()
                 self.angle = 0.0
+            elif opt == 'pmass':
+                if self.mass < 20:
+                    self.mass += 5
+            elif opt == 'mmass':
+                if self.mass > 5:
+                    self.mass -= 5
     
-    def start(self):
-        self.energy = (self.size[1]-self.ballAt[1])*9.8*1/100
-        pass
+    def calc(self):
+        self.strAngle = (self.strAngle+self.step)%360
+        self.ballAt[0] = self.maxXPos*math.cos(math.radians(self.strAngle))
+        self.ballAt[1] = self.apoioHeight + math.sqrt(((self.length*self.centimeter)**2) - (self.ballAt[0]**2))
 
     def updateButtons(self):
             self.buttons['angle'] = [((self.size[0]/2)-(self.length*self.centimeter), self.size[1]-32), ((self.size[0]/2)+(self.length*self.centimeter), self.size[1]-32)]
@@ -127,6 +157,6 @@ class Pendulo:
         pygame.display.flip()
     
     def refresh(self):
-        if not self.ui.on:
+        if not self.ui.on and self.ui.clickedOn() in ['angle', 'length']:
             self.adjusting = True
         self.ui.update()
