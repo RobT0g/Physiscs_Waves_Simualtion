@@ -30,6 +30,7 @@ class Controls:
             obj.angle = 0.0
             if size[0] != 0.0 and size[1] != 0.0:
                 obj.angle = (90 - math.degrees(math.atan(size[0]/size[1])))*(-1 if obj.ballAt[0] < obj.size[0]/2 else 1)
+            obj.pot = ((obj.size[1]-obj.ballAt[1])*9.8*obj.mass/(obj.centimeter*100))
         elif opt == 'reset':
             if (obj.ballAt[0] != obj.size[0]/2):
                 obj.__init__(obj.display, obj.size, obj.slow)
@@ -42,13 +43,15 @@ class Controls:
             obj.ballAt = [obj.size[0]/2, obj.length*obj.centimeter+obj.apoioHeight]
             obj.updateButtons()
             obj.angle = 0.0
+            obj.pot = ((obj.size[1]-obj.ballAt[1])*9.8*obj.mass/(obj.centimeter*100))
         elif opt == 'pmass':
             if obj.mass < 50:
                 obj.mass += 5
+            obj.pot = ((obj.size[1]-obj.ballAt[1])*9.8*obj.mass/(obj.centimeter*100))
         elif opt == 'mmass':
             if obj.mass > 5:
                 obj.mass -= 5
-    
+            obj.pot = ((obj.size[1]-obj.ballAt[1])*9.8*obj.mass/(obj.centimeter*100))
     def clickedOn(self):
         pos = pygame.mouse.get_pos()
         for i in self.buttons:
@@ -79,6 +82,8 @@ class Pendulo:
         self.mass = 5
         self.clicked = False
         self.vel = 0
+        self.pot = ((self.size[1]-self.apoioHeight-(self.length*self.centimeter))/self.centimeter)*self.mass*9.8/100
+        self.cin = 0
         self.font = pygame.font.SysFont('Times New Roman', 18)
         self.frame = pygame.image.load('Images/Frame.png')
 
@@ -86,7 +91,7 @@ class Pendulo:
         self.maxXPos = self.ballAt[0]
         self.strAngle = 0
         self.wholeEnergy = ((self.size[1]-self.ballAt[1])/self.centimeter)*self.mass*9.8/100
-        self.baseEnergy = (self.size[1]-self.apoioHeight-(self.length*self.centimeter))*self.mass*9.8/100
+        self.baseEnergy = ((self.size[1]-self.apoioHeight-(self.length*self.centimeter))/self.centimeter)*self.mass*9.8/100
         self.period = (2*math.pi)*math.sqrt(self.length/(100*9.8))*(2.5 if self.slow else 1)
         self.step = 360/(self.period*(1000/60))
 
@@ -101,6 +106,8 @@ class Pendulo:
             self.angle = 0.0
         self.vel = self.wholeEnergy-((self.size[1]-self.ballAt[1])*9.8*self.mass/(self.centimeter*100))
         self.vel = math.sqrt(2*self.vel/self.mass)
+        self.pot = ((self.size[1]-self.ballAt[1])*9.8*self.mass/(self.centimeter*100))
+        self.cin = self.wholeEnergy-self.pot
 
     def update(self):
         if self.cont.setts:
@@ -148,11 +155,19 @@ class Pendulo:
         self.display.blit(txt, (22, 22))
         self.display.blit(self.font.render('+', False, (255, 255, 255)), (self.buttons['pmass'][0][0]+5, self.buttons['pmass'][0][1]))
         self.display.blit(self.font.render('-', False, (255, 255, 255)), (self.buttons['mmass'][0][0]+7, self.buttons['mmass'][0][1]-2))
-        if self.vel != 0:
-            pygame.draw.line(self.display, (255, 255, 255), (self.ballAt[0], self.ballAt[1]), p:=self.getVelVector())
-        pygame.draw.rect(self.display, (255, 255, 255), pygame.Rect(self.buttons['init'][0][0]-130, self.buttons['angle'][0][1]-90, 180, 80))
-        pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(self.buttons['init'][0][0]-190, self.buttons['init'][0][1]-90, 180, 80), 1)
-        #self.display.blit(self.font.render(f'{self.vel:.2f}', False, (255, 255, 255)), (p[0]+15, p[1]-15))
+        txt = self.font.render(f'''Vel {self.vel:.2f} m/s''', False, (0, 0, 0))
+        coords = (self.size[0]-25-txt.get_size()[0], self.size[1]-45-txt.get_size()[1])
+        pygame.draw.rect(self.display, (255, 255, 255), pygame.Rect(coords[0]-5, coords[1]-42, txt.get_size()[0]+10, 64))
+        pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(coords[0]-5, coords[1]-42, txt.get_size()[0]+10, 64), 1)
+        pygame.draw.line(self.display, (0, 0, 0), (coords[0]+28, coords[1]-42), (coords[0]+28, coords[1]+20))
+        pygame.draw.line(self.display, (0, 0, 0), (coords[0]+65, coords[1]-42), (coords[0]+65, coords[1]+20))
+        pygame.draw.line(self.display, (0, 0, 0), (coords[0]-5, coords[1]-20), (coords[0]+txt.get_size()[0]+4, coords[1]-20))
+        pygame.draw.line(self.display, (0, 0, 0), (coords[0]-5, coords[1]), (coords[0]+txt.get_size()[0]+4, coords[1]))
+        self.display.blit(txt, coords)
+        txt = self.font.render((f'''Ept {self.pot:.2f} mJ''' if self.pot < 10 else (f'''Ept {self.pot:.1f} mJ''' if self.pot < 100 else f'''Ept {self.pot:.0f}  mJ''')), False, (0, 0, 0))
+        self.display.blit(txt, (coords[0], coords[1]-20))
+        txt = self.font.render((f'''Ecn {self.cin:.2f} mJ''' if self.cin < 10 else f'''Ecn {self.cin:.1f} mJ'''), False, (0, 0, 0))
+        self.display.blit(txt, (coords[0], coords[1]-40))
 
     def getVelVector(self):
         x = math.sqrt((5)/(1+(math.tan(math.radians(self.angle))**2)))*self.vel
