@@ -52,6 +52,9 @@ class Controls:
             if obj.mass > 5:
                 obj.mass -= 5
             obj.pot = ((obj.size[1]-obj.ballAt[1])*9.8*obj.mass/(obj.centimeter*100))
+        elif opt == 'slow':
+            obj.slow = not obj.slow
+
     def clickedOn(self):
         pos = pygame.mouse.get_pos()
         for i in self.buttons:
@@ -61,7 +64,7 @@ class Controls:
 
 
 class Pendulo:
-    def __init__(self, display, dim, slow):
+    def __init__(self, display, dim, slow=False):
         self.display = display
         self.size = dim
         self.slow = slow
@@ -74,7 +77,8 @@ class Pendulo:
             'reset': [(self.size[0]-80, 60), (self.size[0]-80+54, 60+28)],
             'length': [(32, self.apoioHeight+20*self.centimeter), (32, self.apoioHeight+50*self.centimeter)],
             'mmass': [(35, 50), (55, 70)],
-            'pmass': [(71, 50), (91, 70)]
+            'pmass': [(71, 50), (91, 70)],
+            'slow' : [(80, 75), (100, 95)]
         }
         self.cont = Controls(self.buttons)
         self.ballAt = [self.size[0]/2, self.length*self.centimeter+self.apoioHeight]
@@ -85,14 +89,18 @@ class Pendulo:
         self.pot = ((self.size[1]-self.apoioHeight-(self.length*self.centimeter))/self.centimeter)*self.mass*9.8/100
         self.cin = 0
         self.font = pygame.font.SysFont('Times New Roman', 18)
-        self.frame = pygame.image.load('Images/Frame.png')
+        self.frame = pygame.Surface(self.size)
+        pygame.draw.rect(self.frame, (55, 71, 79), pygame.Rect(0, 0, *self.size))
+        pygame.draw.rect(self.frame, (20, 20, 20), pygame.Rect(0, 0, *self.size), 16)
+        pygame.draw.rect(self.frame, (50, 50, 50), pygame.Rect(0, 0, *self.size), 1)
+        pygame.draw.rect(self.frame, (0, 0, 0), pygame.Rect(15, 15, self.size[0]-30, self.size[1]-30), 1)
 
     def start(self):
-        self.maxXPos = self.ballAt[0]
-        self.strAngle = 0
+        self.maxXPos = self.ballAt[0] if self.ballAt[0] >= self.size[0]/2 else self.size[0]-self.ballAt[0]
+        self.strAngle = 0 if self.ballAt[0] >= self.size[0]/2 else 180
         self.wholeEnergy = ((self.size[1]-self.ballAt[1])/self.centimeter)*self.mass*9.8/100
         self.baseEnergy = ((self.size[1]-self.apoioHeight-(self.length*self.centimeter))/self.centimeter)*self.mass*9.8/100
-        self.period = (2*math.pi)*math.sqrt(self.length/(100*9.8))*(2.5 if self.slow else 1)
+        self.period = (2*math.pi)*math.sqrt(self.length/(100*9.8))*(2 if self.slow else 1)
         self.step = 360/(self.period*(1000/60))
 
     def calc(self):
@@ -148,10 +156,15 @@ class Pendulo:
         txt = self.font.render(f'''{self.angle:.1f}°''', False, (255, 255, 255))
         self.display.blit(txt, (5+(self.size[0]/2)-txt.get_size()[0]/2, 16))
         txt = self.font.render(f'Massa:{self.mass:.2f}g', False, (0, 0, 0))
-        pygame.draw.rect(self.display, (255, 255, 255), pygame.Rect(20, 20, (p:=txt.get_size())[0]+4, 3*p[1]+4))
-        pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(20, 20, (p:=txt.get_size())[0]+4, 3*p[1]+4), 2)
+        pygame.draw.rect(self.display, (255, 255, 255), pygame.Rect(20, 20, (p:=txt.get_size())[0]+4, 4*p[1]+4))
+        pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(20, 20, (p:=txt.get_size())[0]+4, 4*p[1]+4), 2)
         pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(*self.buttons['pmass'][0], 20, 20))
         pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(*self.buttons['mmass'][0], 20, 20))
+        self.display.blit(self.font.render('Slow', False, (0, 0, 0)), (self.buttons['slow'][0][0]-50, self.buttons['slow'][0][1]))
+        pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(*self.buttons['slow'][0], *self.getSizeOf('slow')), 1)
+        if self.slow:
+            pygame.draw.line(self.display, (0, 0, 0), (self.buttons['slow'][0][0]+2, self.buttons['slow'][0][1]+2), (self.buttons['slow'][1][0]-3, self.buttons['slow'][1][1]-3))
+            pygame.draw.line(self.display, (0, 0, 0), (self.buttons['slow'][0][0]+2, self.buttons['slow'][1][1]-3), (self.buttons['slow'][1][0]-3, self.buttons['slow'][0][1]+2))
         self.display.blit(txt, (22, 22))
         self.display.blit(self.font.render('+', False, (255, 255, 255)), (self.buttons['pmass'][0][0]+5, self.buttons['pmass'][0][1]))
         self.display.blit(self.font.render('-', False, (255, 255, 255)), (self.buttons['mmass'][0][0]+7, self.buttons['mmass'][0][1]-2))
