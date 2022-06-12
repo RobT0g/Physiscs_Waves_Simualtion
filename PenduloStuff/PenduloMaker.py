@@ -87,7 +87,7 @@ class Pendulo:
         self.strAngle = 0
         self.wholeEnergy = ((self.size[1]-self.ballAt[1])/self.centimeter)*self.mass*9.8/100
         self.baseEnergy = (self.size[1]-self.apoioHeight-(self.length*self.centimeter))*self.mass*9.8/100
-        self.period = (2*math.pi)*math.sqrt(self.length/(100*9.8))*(2 if self.slow else 1)
+        self.period = (2*math.pi)*math.sqrt(self.length/(100*9.8))*(2.5 if self.slow else 1)
         self.step = 360/(self.period*(1000/60))
 
     def calc(self):
@@ -149,15 +149,18 @@ class Pendulo:
         self.display.blit(self.font.render('+', False, (255, 255, 255)), (self.buttons['pmass'][0][0]+5, self.buttons['pmass'][0][1]))
         self.display.blit(self.font.render('-', False, (255, 255, 255)), (self.buttons['mmass'][0][0]+7, self.buttons['mmass'][0][1]-2))
         if self.vel != 0:
-            pygame.draw.line(self.display, (255, 255, 255), (self.ballAt[0], self.ballAt[1]), self.getVelVector())
+            pygame.draw.line(self.display, (255, 255, 255), (self.ballAt[0], self.ballAt[1]), p:=self.getVelVector())
+        pygame.draw.rect(self.display, (255, 255, 255), pygame.Rect(self.buttons['init'][0][0]-130, self.buttons['angle'][0][1]-90, 180, 80))
+        pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(self.buttons['init'][0][0]-190, self.buttons['init'][0][1]-90, 180, 80), 1)
+        #self.display.blit(self.font.render(f'{self.vel:.2f}', False, (255, 255, 255)), (p[0]+15, p[1]-15))
 
     def getVelVector(self):
-        x = math.sqrt((self.vel)/(1+(math.tan(math.radians(math.fabs(self.angle)))**2)))
-        y = x*math.tan(math.radians(math.fabs(self.angle)))
-        x = x*30*self.vel
-        y = y*30*self.vel
-        print(x, y)
-        return (self.ballAt[0] + (x if math.sin(math.radians(math.fabs(self.angle))) < 0 else -x), self.ballAt[1] + (-y if math.sin(math.radians(self.angle)) < 0 else y))
+        x = math.sqrt((5)/(1+(math.tan(math.radians(self.angle))**2)))*self.vel
+        y = -x*math.fabs(math.tan(math.radians(self.angle)))*(-1 if self.angle < 0 else 1)*self.vel
+        dir = -math.sin(math.radians(self.strAngle))
+        if dir >= 0:
+            return (self.ballAt[0] + x*30, self.ballAt[1] + y*30)
+        return (self.ballAt[0] - x*30, self.ballAt[1] - y*30)   
 
     def getSizeOf(self, opt):
         return (self.buttons[opt][1][0]-self.buttons[opt][0][0], self.buttons[opt][1][1]-self.buttons[opt][0][1])
