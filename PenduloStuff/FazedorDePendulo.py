@@ -31,22 +31,21 @@ class Ui:
         pygame.draw.line(self.display, (255, 255, 255), ((self.size[0]/2), self.apoioHeight-5), (self.size[0]/2, self.apoioHeight+5), 3)
         pygame.draw.line(self.display, (255, 255, 255), ((self.size[0]/2), self.apoioHeight+5), (self.ballAt[0], self.ballAt[1]), 3)
         pygame.draw.circle(self.display, (0, 0, 0), (self.ballAt[0]+1, self.ballAt[1]), self.mass*2)
-        if not self.on:
-            pygame.draw.line(self.display, (255, 255, 255), self.buttons['angle'][0], self.buttons['angle'][1], 4)
-            pygame.draw.line(self.display, (255, 255, 255), self.buttons['length'][0], self.buttons['length'][1], 4)
-            pygame.draw.circle(self.display, (255, 255, 255), (self.ballAt[0]+1, self.buttons['angle'][0][1]+1), 5)
-            pygame.draw.circle(self.display, (255, 255, 255), (self.buttons['length'][0][0]+1, self.apoioHeight+self.length*self.centimeter), 5)
-            self.display.blit(self.font.render(f'''{self.length:.1f}cm''', False, (255, 255, 255)), (self.buttons['length'][0][0]+8, self.apoioHeight+self.length*self.centimeter-6))
-            txt = self.font.render(f'''{self.angle:.1f}°''', False, (255, 255, 255))
-            self.display.blit(txt, (5+(self.size[0]/2)-txt.get_size()[0]/2, 16))
-            txt = self.font.render(f'Massa:{self.mass:.2f}g', False, (0, 0, 0))
-            pygame.draw.rect(self.display, (255, 255, 255), pygame.Rect(20, 20, (p:=txt.get_size())[0]+4, 3*p[1]+4))
-            pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(20, 20, (p:=txt.get_size())[0]+4, 3*p[1]+4), 2)
-            pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(*self.buttons['pmass'][0], 20, 20))
-            pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(*self.buttons['mmass'][0], 20, 20))
-            self.display.blit(txt, (22, 22))
-            self.display.blit(self.font.render('+', False, (255, 255, 255)), (self.buttons['pmass'][0][0]+5, self.buttons['pmass'][0][1]))
-            self.display.blit(self.font.render('-', False, (255, 255, 255)), (self.buttons['mmass'][0][0]+7, self.buttons['mmass'][0][1]-2))
+        pygame.draw.line(self.display, (255, 255, 255), self.buttons['angle'][0], self.buttons['angle'][1], 4)
+        pygame.draw.line(self.display, (255, 255, 255), self.buttons['length'][0], self.buttons['length'][1], 4)
+        pygame.draw.circle(self.display, (255, 255, 255), (self.ballAt[0]+1, self.buttons['angle'][0][1]+1), 5)
+        pygame.draw.circle(self.display, (255, 255, 255), (self.buttons['length'][0][0]+1, self.apoioHeight+self.length*self.centimeter), 5)
+        self.display.blit(self.font.render(f'''{self.length:.1f}cm''', False, (255, 255, 255)), (self.buttons['length'][0][0]+8, self.apoioHeight+self.length*self.centimeter-6))
+        txt = self.font.render(f'''{self.angle:.1f}°''', False, (255, 255, 255))
+        self.display.blit(txt, (5+(self.size[0]/2)-txt.get_size()[0]/2, 16))
+        txt = self.font.render(f'Massa:{self.mass:.2f}g', False, (0, 0, 0))
+        pygame.draw.rect(self.display, (255, 255, 255), pygame.Rect(20, 20, (p:=txt.get_size())[0]+4, 3*p[1]+4))
+        pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(20, 20, (p:=txt.get_size())[0]+4, 3*p[1]+4), 2)
+        pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(*self.buttons['pmass'][0], 20, 20))
+        pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(*self.buttons['mmass'][0], 20, 20))
+        self.display.blit(txt, (22, 22))
+        self.display.blit(self.font.render('+', False, (255, 255, 255)), (self.buttons['pmass'][0][0]+5, self.buttons['pmass'][0][1]))
+        self.display.blit(self.font.render('-', False, (255, 255, 255)), (self.buttons['mmass'][0][0]+7, self.buttons['mmass'][0][1]-2))
         
     def drawButtons(self):
         txt = self.font.render(f'''{'Parar' if self.on else 'Iniciar'}''', False, (0, 0, 0))
@@ -55,13 +54,12 @@ class Ui:
         pygame.draw.rect(flow, (0, 0, 0), pygame.Rect(0, 0, flow.get_size()[0], flow.get_size()[1]), 2)
         self.display.blit(flow, self.buttons['init'][0])
         self.display.blit(txt, (self.buttons['init'][0][0] + (8 if self.on else 3), self.buttons['init'][0][1]+3))
-        if not self.on:
-            txt = self.font.render(f'''Reset''', False, (0, 0, 0))
-            flow = pygame.Surface(self.getSizeOf('reset'))
-            pygame.draw.rect(flow, (255, 255, 255), pygame.Rect(0, 0, flow.get_size()[0], flow.get_size()[1]))
-            pygame.draw.rect(flow, (0, 0, 0), pygame.Rect(0, 0, flow.get_size()[0], flow.get_size()[1]), 2)
-            self.display.blit(flow, self.buttons['reset'][0])
-            self.display.blit(txt, (self.buttons['reset'][0][0] + 6, self.buttons['reset'][0][1]+3))
+        txt = self.font.render(f'''Reset''', False, (0, 0, 0))
+        flow = pygame.Surface(self.getSizeOf('reset'))
+        pygame.draw.rect(flow, (255, 255, 255), pygame.Rect(0, 0, flow.get_size()[0], flow.get_size()[1]))
+        pygame.draw.rect(flow, (0, 0, 0), pygame.Rect(0, 0, flow.get_size()[0], flow.get_size()[1]), 2)
+        self.display.blit(flow, self.buttons['reset'][0])
+        self.display.blit(txt, (self.buttons['reset'][0][0] + 6, self.buttons['reset'][0][1]+3))
     
     def getSizeOf(self, opt):
         return (self.buttons[opt][1][0]-self.buttons[opt][0][0], self.buttons[opt][1][1]-self.buttons[opt][0][1])
@@ -72,19 +70,16 @@ class Ui:
         self.period = (2*math.pi)*math.sqrt((self.length/100)/9.8)
         self.maxXPos = self.ballAt[0]
         self.strAngle = 0
-        self.step = 360/(self.period*80)
+        self.step = 360/(self.period*(100/80))
+        print(self.step)
 
     def update(self):
         if self.on:
-            if self.clickedOn() == 'init':
-                self.on = False
-                self.calc()
-            pass
-        else:
+            self.calc()
+        if pygame.mouse.get_pressed()[0]:
             opt = self.opt
             if not self.opt:
                 opt = self.clickedOn()
-            print(opt)
             if opt == 'init':
                 self.on = not self.on
                 if self.on:
@@ -122,11 +117,12 @@ class Ui:
     
     def calc(self):
         self.strAngle = (self.strAngle+self.step)%360
-        self.ballAt[0] = self.maxXPos*math.cos(math.radians(self.strAngle))
-        self.ballAt[1] = self.apoioHeight + math.sqrt(((self.length*self.centimeter)**2) - (self.ballAt[0]**2))
+        self.ballAt[0] = (self.size[0]/2) + (math.fabs(self.maxXPos - self.size[0]/2))*math.cos(math.radians(self.strAngle))
+        self.ballAt[1] = self.apoioHeight + math.sqrt(((self.length*self.centimeter)**2) - (((self.size[0]/2)-self.ballAt[0])**2))
+        print(self.strAngle, self.ballAt)
 
     def updateButtons(self):
-            self.buttons['angle'] = [((self.size[0]/2)-(self.length*self.centimeter), self.size[1]-32), ((self.size[0]/2)+(self.length*self.centimeter), self.size[1]-32)]
+        self.buttons['angle'] = [((self.size[0]/2)-(self.length*self.centimeter), self.size[1]-32), ((self.size[0]/2)+(self.length*self.centimeter), self.size[1]-32)]
 
     def clickedOn(self):
         pos = pygame.mouse.get_pos()
@@ -145,8 +141,7 @@ class Pendulo:
         self.adjusting = False
         
     def update(self):
-        if not self.ui.on and self.adjusting:
-            self.ui.update()
+        self.ui.update()
         if not pygame.mouse.get_pressed()[0]:
             self.adjusting = False
             self.ui.opt = False
