@@ -67,6 +67,8 @@ class Mola:
         self.const = 4.9
         self.centimeter = 8
         self.apoioHeight = 40
+        self.periodo = 0
+        self.freq = 0
         self.ballAt = [self.size[0]/2, self.length*self.centimeter+self.apoioHeight+(self.mass*9.8/(self.const*1000))*self.centimeter*100]
         self.rest = self.ballAt[1]/self.centimeter
         self.pull = 0
@@ -100,6 +102,7 @@ class Mola:
 
     def start(self):
         self.periodo = 2*math.pi*math.sqrt((self.mass/1000)/self.const)
+        self.freq = 1/self.periodo if self.periodo != 0 else 0
         self.angle = 0 if self.ballAt[1] >= self.rest*self.centimeter else 180
         self.step = 360/(self.periodo*(1000/60)*(5 if self.slow else 1))
         self.wholeEnergy = self.pot
@@ -108,10 +111,6 @@ class Mola:
     def calc(self):
         self.angle = (self.angle+self.step)%360
         self.ballAt[1] = self.rest*self.centimeter+self.maxY*math.cos(math.radians(self.angle))
-        self.pot = (self.mass*9.8*((self.size[1]-self.ballAt[1])/(self.centimeter*100))) + ((((self.ballAt[1]/self.centimeter)-self.rest)/100)**2)*1000*self.const/2
-        print(f'{(self.mass*9.8*((self.size[1]-self.ballAt[1])/(self.centimeter*100))):.2f}', f'{((((self.ballAt[1]/self.centimeter)-self.rest)/100)**2)*1000*self.const/2:.2f}', f'{self.wholeEnergy - self.pot:.2f}')
-        #self.cin = self.wholeEnergy - self.pot
-        self.vel = math.sqrt(2*self.cin/self.mass)
 
     def drawUi(self):
         pygame.draw.line(self.display, (255, 255, 255), ((self.size[0]/2)-50, self.rest*self.centimeter), ((self.size[0]/2)+50, self.rest*self.centimeter))
@@ -150,19 +149,11 @@ class Mola:
         self.display.blit(txt, (22, 22))
         self.display.blit(self.font.render('+', False, (255, 255, 255)), (self.buttons['pmass'][0][0]+5, self.buttons['pmass'][0][1]))
         self.display.blit(self.font.render('-', False, (255, 255, 255)), (self.buttons['mmass'][0][0]+7, self.buttons['mmass'][0][1]-2))
-        txt = self.font.render(f'''Vel {self.vel:.2f} m/s''', False, (0, 0, 0))
-        coords = (self.size[0]-25-txt.get_size()[0], self.size[1]-45-txt.get_size()[1])
-        pygame.draw.rect(self.display, (255, 255, 255), pygame.Rect(coords[0]-5, coords[1]-42, txt.get_size()[0]+10, 64))
-        pygame.draw.rect(self.display, (0, 0, 0), pygame.Rect(coords[0]-5, coords[1]-42, txt.get_size()[0]+10, 64), 1)
-        pygame.draw.line(self.display, (0, 0, 0), (coords[0]+28, coords[1]-42), (coords[0]+28, coords[1]+20))
-        pygame.draw.line(self.display, (0, 0, 0), (coords[0]+65, coords[1]-42), (coords[0]+65, coords[1]+20))
-        pygame.draw.line(self.display, (0, 0, 0), (coords[0]-5, coords[1]-20), (coords[0]+txt.get_size()[0]+4, coords[1]-20))
-        pygame.draw.line(self.display, (0, 0, 0), (coords[0]-5, coords[1]), (coords[0]+txt.get_size()[0]+4, coords[1]))
-        self.display.blit(txt, coords)
-        txt = self.font.render((f'''Ept {self.pot:.2f} mJ''' if self.pot < 10 else (f'''Ept {self.pot:.1f} mJ''' if self.pot < 100 else f'''Ept {self.pot:.0f}  mJ''')), False, (0, 0, 0))
+        txt = self.font.render(f'''T: {self.periodo:.2f} s''', False, (255, 255, 255))
+        coords = (self.size[0]-30-txt.get_size()[0], self.size[1]-45-txt.get_size()[1])
+        self.display.blit(txt, (coords[0], coords[1]))
+        txt = self.font.render(f'''F: {(self.freq):.2f} hz''', False, (255, 255, 255))
         self.display.blit(txt, (coords[0], coords[1]-20))
-        txt = self.font.render((f'''Ecn {self.cin:.2f} mJ''' if self.cin < 10 else f'''Ecn {self.cin:.1f} mJ'''), False, (0, 0, 0))
-        self.display.blit(txt, (coords[0], coords[1]-40))
         pygame.draw.line(self.display, (255, 255, 255), (70 + self.size[0]/2, 2+self.apoioHeight), (70 + self.size[0]/2, 2+self.apoioHeight+self.centimeter*50), 3)
         for i in range(11):
             pygame.draw.line(self.display, (255, 255, 255), ((self.size[0]/2)+65, 2+self.apoioHeight+(i*5*self.centimeter)), ((self.size[0]/2)+75, 2+self.apoioHeight+(i*5*self.centimeter)))
@@ -171,8 +162,8 @@ class Mola:
     def recalc(self):
         self.rest = ((self.length*self.centimeter)+self.apoioHeight+(self.mass*9.8/(self.const*1000))*self.centimeter*100)/self.centimeter
         self.ballAt[1] = (self.rest + self.pull)*self.centimeter
-        self.pot = (self.mass*9.8*((self.size[1]-self.ballAt[1])/(self.centimeter*100))) + ((((self.ballAt[1]/self.centimeter)-self.rest)/100)**2)*1000*self.const/2 
-        #self.pot = ((((self.ballAt[1]/self.centimeter)-self.rest)/100)**2)*1000*self.const/2 
+        self.periodo = 2*math.pi*math.sqrt((self.mass/1000)/self.const)
+        self.freq = 1/self.periodo if self.periodo != 0 else 0
         self.updateButtons()
 
     def drawBodies(self):
