@@ -1,5 +1,5 @@
 import pygame
-from MolaStuff.MolaMak import Mola
+from MolaStuff.MolaMaker import Mola
 
 pygame.init()                                                           # inicialização
 
