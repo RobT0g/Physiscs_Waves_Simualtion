@@ -44,14 +44,17 @@ class Controls:
             obj.updateButtons()
             obj.angle = 0.0
             obj.pot = ((obj.size[1]-obj.ballAt[1])*9.8*obj.mass/(obj.centimeter*100))
+            obj.period = (2*math.pi)*math.sqrt(obj.length/(100*9.8))
         elif opt == 'pmass':
             if obj.mass < 50:
                 obj.mass += 5
             obj.pot = ((obj.size[1]-obj.ballAt[1])*9.8*obj.mass/(obj.centimeter*100))
+            obj.period = (2*math.pi)*math.sqrt(obj.length/(100*9.8))
         elif opt == 'mmass':
             if obj.mass > 5:
                 obj.mass -= 5
             obj.pot = ((obj.size[1]-obj.ballAt[1])*9.8*obj.mass/(obj.centimeter*100))
+            obj.period = (2*math.pi)*math.sqrt(obj.length/(100*9.8))
         elif opt == 'slow':
             obj.slow = not obj.slow
 
@@ -71,6 +74,7 @@ class Pendulo:
         self.length = 50
         self.centimeter = 8
         self.apoioHeight = 40
+        self.period = 0
         self.buttons = {
             'init': [(self.size[0]-80, 25), (self.size[0]-80+54, 25+28)], 
             'angle': [((self.size[0]/2)-(self.length*self.centimeter), self.size[1]-32), ((self.size[0]/2)+(self.length*self.centimeter), self.size[1]-32)],
@@ -181,6 +185,11 @@ class Pendulo:
         self.display.blit(txt, (coords[0], coords[1]-20))
         txt = self.font.render((f'''Ecn {self.cin:.2f} mJ''' if self.cin < 10 else f'''Ecn {self.cin:.1f} mJ'''), False, (0, 0, 0))
         self.display.blit(txt, (coords[0], coords[1]-40))
+        txt = self.font.render(f'''T: {self.period:.1f} s''', False, (255, 255, 255))
+        coords = (self.size[0]-30-txt.get_size()[0], self.size[1]-45-txt.get_size()[1])
+        self.display.blit(txt, (coords[0], coords[1]-60))
+        txt = self.font.render(f'''F: {((1/self.period) if self.period != 0 else 0):.1f} hz''', False, (255, 255, 255))
+        self.display.blit(txt, (coords[0], coords[1]-80))
 
     def getVelVector(self):
         x = math.sqrt((5)/(1+(math.tan(math.radians(self.angle))**2)))*self.vel

@@ -149,10 +149,10 @@ class Mola:
         self.display.blit(txt, (22, 22))
         self.display.blit(self.font.render('+', False, (255, 255, 255)), (self.buttons['pmass'][0][0]+5, self.buttons['pmass'][0][1]))
         self.display.blit(self.font.render('-', False, (255, 255, 255)), (self.buttons['mmass'][0][0]+7, self.buttons['mmass'][0][1]-2))
-        txt = self.font.render(f'''T: {self.periodo:.2f} s''', False, (255, 255, 255))
+        txt = self.font.render(f'''T: {self.periodo:.1f} s''', False, (255, 255, 255))
         coords = (self.size[0]-30-txt.get_size()[0], self.size[1]-45-txt.get_size()[1])
         self.display.blit(txt, (coords[0], coords[1]))
-        txt = self.font.render(f'''F: {(self.freq):.2f} hz''', False, (255, 255, 255))
+        txt = self.font.render(f'''F: {(self.freq):.1f} hz''', False, (255, 255, 255))
         self.display.blit(txt, (coords[0], coords[1]-20))
         pygame.draw.line(self.display, (255, 255, 255), (70 + self.size[0]/2, 2+self.apoioHeight), (70 + self.size[0]/2, 2+self.apoioHeight+self.centimeter*50), 3)
         for i in range(11):
