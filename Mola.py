@@ -12,7 +12,7 @@ update = pygame.USEREVENT + 1
 pygame.time.set_timer(update, refresh)
 
 display = pygame.display.set_mode((width, height))        # tela definida
-pygame.display.set_caption('Pendulo Simples')   
+pygame.display.set_caption('Mola')   
 mola = Mola(display, (width, height))
 mola.putOnScreen()
 
