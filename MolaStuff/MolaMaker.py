@@ -111,6 +111,12 @@ class Mola:
     def calc(self):
         self.angle = (self.angle+self.step)%360
         self.ballAt[1] = self.rest*self.centimeter+self.maxY*math.cos(math.radians(self.angle))
+        self.pot = ((self.size[1]-self.ballAt[1])/(self.centimeter*100))*9.8*self.mass + (
+            (((math.fabs(self.ballAt[1]-self.apoioHeight)/self.centimeter)-self.length)/100)**2)*self.const/2
+        #print((self.size[1]-self.ballAt[1])/(self.centimeter*100)*9.8*self.mass)
+        self.cin = self.wholeEnergy - self.pot
+        #self.vel = math.sqrt(2*(self.cin)/self.mass)
+        print(self.wholeEnergy, self.pot)
 
     def drawUi(self):
         pygame.draw.line(self.display, (255, 255, 255), ((self.size[0]/2)-50, self.rest*self.centimeter), ((self.size[0]/2)+50, self.rest*self.centimeter))
@@ -164,6 +170,9 @@ class Mola:
         self.ballAt[1] = (self.rest + self.pull)*self.centimeter
         self.periodo = 2*math.pi*math.sqrt((self.mass/1000)/self.const)
         self.freq = 1/self.periodo if self.periodo != 0 else 0
+        self.pot = ((self.size[1]-self.ballAt[1])/(self.centimeter*100))*9.8*self.mass + (
+            (((math.fabs(self.ballAt[1]-self.apoioHeight)/self.centimeter)-self.length)/100)**2)*self.const/2
+        print((self.ballAt[1]-self.apoioHeight)/self.centimeter)
         self.updateButtons()
 
     def drawBodies(self):
